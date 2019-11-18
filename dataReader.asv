@@ -1,69 +1,111 @@
 clc
 
-source='fan';% temp or fan
-start=20;
-end =30;
+source='temp';% temp or fan
+start=30;
+goal =40;
 switch source
     case 'fan'
-        if(start=20 & end=30)
+        if(start==20 & goal==30)
             data= importdata('stepResponse/fan20_30_min10.txt');
-        elseif (start=30 & end =20)
+        elseif (start==30 & goal ==20)
             data= importdata('stepResponse/fan30_20_min10.txt');
-        elseif (start=30 & end =40)
+        elseif (start==30 & goal ==40)
             data= importdata('stepResponse/fan30_40_min10.txt');
-        elseif (start=40 & end =30)
+        elseif (start==40 & goal ==30)
             data= importdata('stepResponse/fan40_30_min10.txt');  
         end
-%         TODO rozszryfr
+%         TODO rozszryfrowac te pliki z temperatura
     case 'temp'
-         if(start=20 & end=30)
-            data= importdata('stepResponse/fan20_30_min10.txt');
-        elseif (start=30 & end =20)
-            data= importdata('stepResponse/fan30_20_min10.txt');
-        elseif (start=30 & end =40)
-            data= importdata('stepResponse/fan30_40_min10.txt');
-        elseif (start=40 & end =30)
-            data= importdata('stepResponse/fan40_30_min10.txt');  
+         if(start==20 & goal==30)
+            data= importdata('stepResponse/temp20_30_min10.txt');
+        elseif (start==30 & goal ==20)
+            data= importdata('stepResponse/temp30_20_min10.txt');
+        elseif (start==30 & goal ==40)
+            data= importdata('stepResponse/temp30_40_min10.txt');
+        elseif (start==40 & goal ==30)
+            %data= importdata('stepResponse/fan40_30_min10.txt');  
         end
 end
-
+% data= importdata('stepResponse/RRMV3.txt');
 data=data(1:2:size(data));
 dataChar=char(data(2:size(data)));
 
 
-k=1;
+k=130;
 while(1)
 %     temp=dataChar(:,138:2:148);
-    tempChar=dataChar(:,130+k:2:140+k);   
+    tempChar=dataChar(:,k:2:k+10);   
     if(str2num(tempChar(1))>0)
-        temp=str2num(tempChar)
-        flip(temp);        
+        temp=str2num(tempChar);
+        temp=flip(temp);        
         break;        
     end 
     k=k+1;
 end
 
 
-k=1;
-control=0;
+i=k+10
+controlFan=0;
 try
     while(1)
     %     temp=dataChar(:,138:2:148);
 %        control=dataChar(:,192:2:202);
 
-        controlChar=dataChar(:,180+k:2:190+k);   
-        if(str2num(controlChar(1))>0)
-            control=str2num(controlChar);
-            flip(control);    
+        controlFanChar=dataChar(:,i:2:i+10);   
+        if(str2num(controlFanChar(1))>0)
+            controlFan=str2num(controlFanChar);
+            controlFan=flip(controlFan) ; 
             break;        
        end 
-    k=k+1
+    i=i+1;
     end
 end
 
+z=i+10
+controlTemp=0;
+try
+    while(1)
+    %     temp=dataChar(:,138:2:148);
+%        control=dataChar(:,192:2:202);
+
+        controlTempChar=dataChar(:,z:2:z+10);   
+        if(str2num(controlTempChar(1))>0)
+            controlTemp=str2num(controlTempChar);
+          
+           controlTemp= flip(controlTemp)  
+            break;        
+       end 
+    z=z+1;
+    end
+end
+
+
 figure
-if(control~=0)
-    plot(control)
+size(controlFan,1)
+try
+if(size(controlFan,1)>2  & eq('fan',source) )
+    plot(controlFan)
     hold on
 end
+end
+
+try
+if(size(controlTemp,1)>2 & eq('temp',source) )
+    plot(controlTemp)
+    hold on
+end
+end
+
 plot(temp)
+Ts=1
+data=iddata( temp,controlTemp,Ts);
+trans=tfest(data,10);
+
+numerator = trans.Numerator;
+denominator = trans.Denominator;
+transmit = tf(numerator,denominator);
+figure
+stero=ones(600,1)*30;
+lsim(transmit,controlTemp,1:600)
+% lsim(transmit,controlTemp,1:length(controlTemp))
+
