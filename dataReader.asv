@@ -5,7 +5,7 @@ close all
 %Starting and ending cf process variable
 source='fan';% heater or fan
 start=30;
-goal =20;
+goal =40;
 switch source
     case 'fan'
         if(start==20 & goal==30)
@@ -133,13 +133,13 @@ if(strcmp(source,'heater'))
 
 elseif(strcmp(source,'fan'))
    if(goal>start)
-        numerator =[-0.16];
+        numerator =[-0.56];
         denominator =[72 1];
         transmit = tf(numerator,denominator)
         transmit.ioDelay=10;
         discrete=c2d(transmit,1)
    elseif(goal<start)
-        numerator =[0.25];
+        numerator =[0.2];
         denominator =[72 1];
         transmit = tf(numerator,denominator)
         transmit.ioDelay=10;
