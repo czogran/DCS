@@ -6,12 +6,12 @@ clc
 % AutoMan = 0 regulator na wyjœciu podaje wartoœæ sterowania rêcznego ManVal
 % AutoMan = 1 regulator na wyjœciu podaje wartoœæ wyliczon¹ z prawa regulacji
 %Przyklad: deklaracja regulatora D
-K = 10;          % Gain
-Ti = 7;        % Integration time
-Kd = 3;         % Derivation gain
-Td = 3;         % Derivation time
+K = 8;          % Gain
+Ti = 15;        % Integration time
+Kd = 4;         % Derivation gain
+Td = 1;         % Derivation time
 
-p=classPID(K, Ti ,Kd , Td, 1, 70, -30, 1, 1, 0)
+p = classPID(K, Ti ,Kd , Td, 1, 70, -30, 1, 1, 0)
 
 %Setpoint
 stpt = 10;
@@ -30,9 +30,9 @@ pv=pvStart;
 u=30;
 
 %Setting transmitation of object
-numerator =[0.37];
+numerator = 0.37;
 denominator =[103 1]; 
-transmit = tf(numerator,denominator)
+transmit = tf(numerator,denominator);
 transmit.ioDelay=18;
 %Discrete transmit from 
 discrete= c2d(transmit,1);
@@ -56,22 +56,25 @@ for i=startLength+1:1:endLength
 
   %Simulation of an object and calculating future outputs using controll
   %vaiarble
-  pv(i+1)=0.990338239777254*pv(i)+u(i-18)*0.003574851282416;
+  pv(i+1)=-discrete.Denominator{1}(2)*pv(i)+u(i-18)*discrete.Numerator{1}(2);
 end
 
 %Simulation of transfer function with calculated controll variable 
-figure (1)
-lsim(transmit,u,1:endLength);
+
+% figure (1)
+% lsim(transmit,u,1:endLength);
 
 %Control variable and process variable
 figure (2)
-plot(u)
+plot(u(300:800),'g')
 hold on
-plot(pv,'r')
+grid on
+plot(pv(300:800),'b')
+plot(ones(500)*stpt,'--r')
 hold off
-legend('U','PV')
-xlabel("samples")
-ylabel("amplitude")
+legend('MV','PV','STPT')
+xlabel("Samples")
+ylabel("Amplitude")
 title("PV and Controll of process"+newline...
     +"PID settings"+newline...
     +"K:"+K+"  Ti:"+Ti+"  Kd:"+Kd+"  Td:"+Td)
