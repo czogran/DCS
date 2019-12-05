@@ -6,10 +6,10 @@ clc
 % AutoMan = 0 regulator na wyjœciu podaje wartoœæ sterowania rêcznego ManVal
 % AutoMan = 1 regulator na wyjœciu podaje wartoœæ wyliczon¹ z prawa regulacji
 %Przyklad: deklaracja regulatora D
-K = 8;          % Gain
-Ti = 15;        % Integration time
-Kd = 4;         % Derivation gain
-Td = 1;         % Derivation time
+K = 10;          % Gain
+Ti = 8.5;        % Integration time
+Kd = 4;          % Derivation gain
+Td = 1;          % Derivation time
 
 p = classPID(K, Ti ,Kd , Td, 1, 70, -30, 1, 1, 0)
 
@@ -80,6 +80,6 @@ title("PV and Controll of process"+newline...
     +"K:"+K+"  Ti:"+Ti+"  Kd:"+Kd+"  Td:"+Td)
 
 %saving charts
- print("PIDSimulationCharts/PIDSim_"+"K"+K+"_Ti"+Ti+"_Kd"+Kd+"_Td"+Td,'-dpng','-r500');
+ print("PIDSimulationCharts/PIDSim_"+"K"+K+"_Ti"+Ti+"_Kd"+Kd+"_Td"+Td+".png",'-dpng','-r500');
 
 
